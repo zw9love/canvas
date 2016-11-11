@@ -1,6 +1,7 @@
 <!doctype html>
 <html lang="en">
 <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
     <meta charset="UTF-8">
     <title>Document</title>
     <style>
@@ -35,16 +36,8 @@
         display:none;
     }
 
-    div.container>div{
-        position: absolute;
-        bottom: 0;
-        
-    }
-/*    img{
-        width:100%;
-        height: 100%;
-        vertical-align: top;
-    }*/
+
+
     
     </style>
 </head>
@@ -53,9 +46,6 @@
     <canvas id="canvas1" width="500" height="500"></canvas>
     <canvas id="canvas2" width="500" height="500"></canvas>
     <span class="shadow"></span>
-    <div>
-    </div>
-
     </div>
     
     <script src="js/jquery-1.8.3.min.js"></script>
@@ -67,8 +57,16 @@
         var ctx1=canvas1.getContext('2d');
         var ctx2=canvas2.getContext('2d');
         var arr=[];
+        
+        var width=$(window).width();
+        canvas1.width=width;
+        canvas1.height=width;
+        canvas2.width=width;
+        canvas2.height=width;
         ctx2.fillStyle='#ccc';
-        ctx2.fillRect(0,0,500,500);
+        ctx2.fillRect(0,0,width,width);
+        div.style.width=width+'px';
+        div.style.height=width+'px';
         // var obj1=ctx2.getImageData(20,20,10,10);
         // var obj2=ctx2.getImageData(20,20,20,20);
         // console.log(obj1,obj2);
@@ -78,86 +76,61 @@
         var img = document.createElement('img');
         img.src = "images/5.jpg"
         img.onload=function(){
-            // alert(1);
-            
-            ctx1.drawImage(img, 0, 0, 500, 500);
+            ctx1.drawImage(img, 0, 0, width, width);
         };
-        canvas2.onmouseenter=function(){
-            shadow.style.display='block';
-            var left=$('div').offset().left;
-            var top=$('div').offset().top;
-            var w=shadow.offsetWidth/2;
-            var h=shadow.offsetHeight/2;
-            canvas2.onmousemove=function(ent){
-                var e=ent||event;
-                var x=e.clientX;
-                var y=e.clientY;
-                var xx=x-left-w;
-                var yy=y-top-h;
-                if(xx<0){
-                    xx=0;
-                }else if(xx>480){
-                    xx=480;
+        var _left=$('div.container').offset().left;
+        var _top=$('div.container').offset().top;
+        
+        $('#canvas2').on('touchstart',function(e){
+            function guagua(){
+            var x=e.originalEvent.touches[0].clientX;
+            var y=e.originalEvent.touches[0].clientY;
+            var xx=x-_left;
+            var yy=y-_top;
+            // console.log(xx,yy);
+            arr=[];
+            var obj=ctx2.getImageData(parseInt(xx),parseInt(yy),20,20);
+            var line_x=parseInt(xx)+20;
+            var line_y=parseInt(yy)+20;
+            var center_x=parseInt(xx)+10;
+            var center_y=parseInt(yy)+10;
+            // console.log(line_x,line_y,center_x,center_y);
+            for(var i=parseInt(xx);i<line_x;i++){
+                for(var j=parseInt(yy);j<line_y;j++){
+                    // console.log(1)
+                    //Math.sqrt(x) 平方根
+                    //Math.pow(x,y) 几次方
+                    //Math.sqrt(Math.pow(j,2)+Math.pow(i,2))
+                var distance_x=Math.abs(center_x-i);
+                var distance_y=Math.abs(center_y-j);
+                var n=Math.ceil(Math.sqrt(Math.pow(distance_x,2)+Math.pow(distance_y,2)))
+                var ii=i-parseInt(xx);
+                var jj=j-parseInt(yy);
+                var key=ii*20+jj;
+                if(n<=10){
+                    arr.push(key);
                 }
-                if(yy<0){
-                    yy=0;
-                }else if(yy>480){
-                    yy=480;
+
                 }
-                shadow.style.left=xx+'px';
-                shadow.style.top=yy+'px';
-                div.onmousedown=function(){
-                    
-                    arr=[];
+            }
+            for(var i=0;i<arr.length;i++){
+                obj.data[4 * arr[i] + 3] =0;
+            }
+            ctx2.putImageData(obj,parseInt(xx),parseInt(yy));
+            }
+            guagua();
 
-                    var obj=ctx2.getImageData(parseInt(xx),parseInt(yy),20,20);
-                    
-                    var line_x=parseInt(xx)+20;
-                    var line_y=parseInt(yy)+20;
-                    var center_x=parseInt(xx)+10;
-                    var center_y=parseInt(yy)+10;
-                    // console.log(line_x,line_y,center_x,center_y);
-                    for(var i=parseInt(xx);i<line_x;i++){
-                        for(var j=parseInt(yy);j<line_y;j++){
-                            // console.log(1)
-                            //Math.sqrt(x) 平方根
-                            //Math.pow(x,y) 几次方
-                            //Math.sqrt(Math.pow(j,2)+Math.pow(i,2))
-                        var distance_x=Math.abs(center_x-i);
-                        var distance_y=Math.abs(center_y-j);
-                        var n=Math.ceil(Math.sqrt(Math.pow(distance_x,2)+Math.pow(distance_y,2)))
-                        var ii=i-parseInt(xx);
-                        var jj=j-parseInt(yy);
-                        var key=ii*20+jj;
-                        if(n<=10){
-                            arr.push(key);
-                        }
-
-                        }
-                    }
-                    for(var i=0;i<arr.length;i++){
-                        obj.data[4 * arr[i] + 3] =0;
-                    }
-                    ctx2.putImageData(obj,parseInt(xx),parseInt(yy));
-
-                    div.onmousemove=div.onmousedown;
-
-                    div.onmouseup=function(){
-                        div.onmousemove=null;
-                        div.onmouseup=null;
-                    };
-                };
-            };
-            $('div').on('mouseleave',function(){
-                shadow.style.display='none';
-                canvas2.onmousemove=null;
-                div.onmousemove=null;
-                div.onmouseup=null;
-                $('div').off();
+            $('#canvas2').on('touchmove',function(e){
+                console.log(20);
+                guagua();
+                $('#canvas2').on('touchend',function(e){
+                    $(this).off('touchmove');
+                    $(this).off('touchend');
+                    console.log(1);
+                });
             });
+        });
 
-            
-        };
     </script>
 </body>
 </html>

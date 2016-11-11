@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Document</title>
+    <style>
+    *{
+        margin:0;
+        padding: 0;
+        list-style: none;
+    }
+    div{
+        position: absolute;
+        left:50%;
+        top:50%;
+        transform:translate(-50%,-50%);
+        -webkit-transform:translate(-50%,-50%);
+        width:500px;
+        height: 500px;
+    }
+    #canvas1,#canvas2{
+        position: absolute;
+        left:0;
+        top:0;
+        border:1px solid #222;
+    }
+    #canvas1{
+        background: yellow;
+    }
+
+    div>span{
+        position: absolute;
+        width:20px;
+        height: 20px;
+        background: red;
+        left:0;
+        top:0;
+        border-radius: 50%;
+        display:none;
+    }
+
+    
+    </style>
+</head>
+<body>
+    <div>
+    <canvas id="canvas1" width="500" height="500"></canvas>
+    <canvas id="canvas2" width="500" height="500"></canvas>
+    <span class="shadow"></span>
+    </div>
+    
+    <script src="js/jquery-1.8.3.min.js"></script>
+    <script>
+        var div=document.querySelector('div');
+        var canvas1=document.getElementById('canvas1');
+        var canvas2=document.getElementById('canvas2');
+        var shadow=document.querySelector('.shadow');
+        var ctx1=canvas1.getContext('2d');
+        var ctx2=canvas2.getContext('2d');
+        ctx2.fillStyle='skyblue';
+        ctx2.fillRect(0,0,500,500);
+        // var obj = ctx2.getImageData(400, 400, 20, 20);
+        // console.log(obj.data);
+        canvas2.onmouseenter=function(){
+            shadow.style.display='block';
+            var left=$('div').offset().left;
+            var top=$('div').offset().top;
+            var w=shadow.offsetWidth/2;
+            var h=shadow.offsetHeight/2;
+            canvas2.onmousemove=function(ent){
+                var e=ent||event;
+                var x=e.clientX;
+                var y=e.clientY;
+                var xx=x-left-w;
+                var yy=y-top-h;
+                if(xx<0){
+                    xx=0;
+                }else if(xx>480){
+                    xx=480;
+                }
+                if(yy<0){
+                    yy=0;
+                }else if(yy>480){
+                    yy=480;
+                }
+                shadow.style.left=xx+'px';
+                shadow.style.top=yy+'px';
+                div.onmousedown=function(){
+                    // console.log(xx,yy);
+                    var obj=ctx2.getImageData(parseInt(xx),parseInt(yy),20,20);
+                    for(var i=0;i<obj.data.length;i+=4){
+                        // obj.data[i]=obj.data[i];
+                        // obj.data[i+1]= obj.data[i+1];
+                        // obj.data[i+2]= obj.data[i+2];
+                        obj.data[i+3]=0;
+                    }
+                    ctx2.putImageData(obj,parseInt(xx),parseInt(yy));
+
+                    div.onmousemove=div.onmousedown;
+                    div.onmouseup=function(){
+                        div.onmousemove=null;
+                        div.onmouseup=null;
+                    };
+                };
+            };
+            $('div').on('mouseleave',function(){
+                shadow.style.display='none';
+                canvas2.onmousemove=null;
+                div.onmousemove=null;
+                div.onmouseup=null;
+                $('div').off();
+            });
+            
+        };
+    </script>
+</body>
+</html>

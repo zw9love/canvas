@@ -36,9 +36,6 @@
         display:none;
     }
 
-
-
-    
     </style>
 </head>
 <body>
@@ -82,21 +79,22 @@
         var _top=$('div.container').offset().top;
         
         $('#canvas2').on('touchstart',function(e){
-            function guagua(){
+            function guagua(e){
             var x=e.originalEvent.touches[0].clientX;
             var y=e.originalEvent.touches[0].clientY;
             var xx=x-_left;
             var yy=y-_top;
             // console.log(xx,yy);
             arr=[];
-            var obj=ctx2.getImageData(parseInt(xx),parseInt(yy),20,20);
-            var line_x=parseInt(xx)+20;
-            var line_y=parseInt(yy)+20;
-            var center_x=parseInt(xx)+10;
-            var center_y=parseInt(yy)+10;
+            var obj=ctx2.getImageData(parseInt(xx-10),parseInt(yy-10),20,20);
+            // console.log(parseInt(xx-10),parseInt(yy-10));
+            var line_x=parseInt(xx)+10;
+            var line_y=parseInt(yy)+10;
+            var center_x=parseInt(xx);
+            var center_y=parseInt(yy);
             // console.log(line_x,line_y,center_x,center_y);
-            for(var i=parseInt(xx);i<line_x;i++){
-                for(var j=parseInt(yy);j<line_y;j++){
+            for(var i=parseInt(xx-10);i<line_x;i++){
+                for(var j=parseInt(yy-10);j<line_y;j++){
                     // console.log(1)
                     //Math.sqrt(x) 平方根
                     //Math.pow(x,y) 几次方
@@ -104,8 +102,8 @@
                 var distance_x=Math.abs(center_x-i);
                 var distance_y=Math.abs(center_y-j);
                 var n=Math.ceil(Math.sqrt(Math.pow(distance_x,2)+Math.pow(distance_y,2)))
-                var ii=i-parseInt(xx);
-                var jj=j-parseInt(yy);
+                var ii=i-parseInt(xx-10);
+                var jj=j-parseInt(yy-10);
                 var key=ii*20+jj;
                 if(n<=10){
                     arr.push(key);
@@ -116,17 +114,15 @@
             for(var i=0;i<arr.length;i++){
                 obj.data[4 * arr[i] + 3] =0;
             }
-            ctx2.putImageData(obj,parseInt(xx),parseInt(yy));
+            ctx2.putImageData(obj,parseInt(xx-10),parseInt(yy-10));
             }
-            guagua();
+            guagua(e);
 
             $('#canvas2').on('touchmove',function(e){
-                console.log(20);
-                guagua();
+                guagua(e);
                 $('#canvas2').on('touchend',function(e){
                     $(this).off('touchmove');
                     $(this).off('touchend');
-                    console.log(1);
                 });
             });
         });

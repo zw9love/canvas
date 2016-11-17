@@ -80,6 +80,7 @@
         
         $('#canvas2').on('touchstart',function(e){
             function guagua(e){
+            e.preventDefault();
             var x=e.originalEvent.touches[0].clientX;
             var y=e.originalEvent.touches[0].clientY;
             var xx=x-_left;
